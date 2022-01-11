@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# This calculates the average time for N-1 runs of executable ex and the standard error
+# SE = sqrt( sum( x - x_mean)^2 ) / n 
+
+
 N=20
 ex="./shoc_run_and_cmp_cxx baseline"
 
@@ -20,6 +24,7 @@ avg_time() {
 		  { for (j = 1; j < nr; j++) usersum = usersum + users[j] }
 		  { for (j = 1; j < nr; j++) syssum = syssum + syss[j] }
 
+		  
 		  { for (j = 1; j < nr; j++) realerrorsum = realerrorsum + (reals[j] - realsum/(nr-1))^2  }
 		  { for (j = 1; j < nr; j++) usererrorsum = usererrorsum + (users[j] - usersum/(nr-1))^2  }
 		  { for (j = 1; j < nr; j++) syserrorsum = syserrorsum + (syss[j] - syssum/(nr-1))^2  }
@@ -30,8 +35,5 @@ avg_time() {
 
                 }'
  }
-
-#echo " usage: avg_time N command"
-#echo " where N=number of repititions"
 
 avg_time ${N} ${ex}
