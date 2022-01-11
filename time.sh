@@ -1,23 +1,33 @@
 #!/bin/bash
 
-N=1
+N=20
 ex="./shoc_run_and_cmp_cxx baseline"
 
 
 avg_time() {
      n=$1; shift
      (($# > 0)) || return                   # bail if no command given
-     for ((i = 0; i < n; i++)); do
+     for ((i = 1; i <= $N; i++)); do
          { time -p "$@" &>/dev/null; } 2>&1 # ignore the output of the command
                                             # but collect time's output in stdout
      done | awk '
-         /real/ { real = real + $2; nr++ }
-         /user/ { user = user + $2; nu++ }
-         /sys/  { sys  = sys  + $2; ns++}
+         /real/ { reals[nr]=$2; nr++ }
+         /user/ { users[nu]=$2; nu++ }
+         /sys/  { syss[ns]=$2; ns++ }
          END    {
-                  if (nr>0) printf("real %f\n", real/nr);
-                  if (nu>0) printf("user %f\n", user/nu);
-                  if (ns>0) printf("sys %f\n",  sys/ns);
+	 	  printf("For %f runs: \n",nr-1)
+		  { for (j = 1; j < nr; j++) realsum = realsum + reals[j] }
+		  { for (j = 1; j < nr; j++) usersum = usersum + users[j] }
+		  { for (j = 1; j < nr; j++) syssum = syssum + syss[j] }
+
+		  { for (j = 1; j < nr; j++) realerrorsum = realerrorsum + (reals[j] - realsum/(nr-1))^2  }
+		  { for (j = 1; j < nr; j++) usererrorsum = usererrorsum + (users[j] - usersum/(nr-1))^2  }
+		  { for (j = 1; j < nr; j++) syserrorsum = syserrorsum + (syss[j] - syssum/(nr-1))^2  }
+
+		  printf("Real: %f +- %f seconds \n", realsum/(nr-1), sqrt(realerrorsum)/(nr-3));
+		  printf("User: %f +- %f seconds \n", usersum/(nr-1), sqrt(usererrorsum)/(nr-3));
+		  printf("Sys: %f +- %f seconds \n", syssum/(nr-1), sqrt(syserrorsum)/(nr-3));
+
                 }'
  }
 
