@@ -15,11 +15,13 @@ def reformat(array):
     return formatted_array
 
 
-#open file
-filename = 'profile_shoc_and_run_cmp_cxx.txt'  #input ("Filename :")
-#filename = 'profile_main.txt'  #input ("Filename :")
-ex="shoc_and_run_cmp_cxx"
-#ex="shoc_standalone"
+if (len(sys.argv)!=3):
+    print("Usage: plot_stats_from_nsight.py profile_filename executable_filename") 
+    sys.exit()
+
+filename=sys.argv[1]
+ex=sys.argv[2]
+
 
 stopstart=np.zeros(8,dtype='int')
 counter=0
